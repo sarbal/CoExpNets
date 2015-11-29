@@ -1,2 +1,2 @@
 # CoExpNets
-Co-expression aggregate networks for human, mouse and yeast. 
+How-to generate and analyze co-expression aggregate networks
