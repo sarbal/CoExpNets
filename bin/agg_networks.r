@@ -1,7 +1,7 @@
 
 source("helper_functions.r") 
-load("~/shared/bin/run_GBA.Rdata")
-load("~/shared/GO.human.Rdata")
+load("run_GBA.Rdata")
+load("GO.human.Rdata")
 
 # Minimum number of smaples needed in expression experiment 
 MIN_SAMP = 10 
