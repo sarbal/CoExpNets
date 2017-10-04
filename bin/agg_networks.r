@@ -1,7 +1,11 @@
 
+source("helper_functions.r") 
+load("~/shared/bin/run_GBA.Rdata")
+load("~/shared/GO.human.Rdata")
 
-
+# Minimum number of smaples needed in expression experiment 
 MIN_SAMP = 10 
+
 # List of expression files. Each expression file should have the column names as the sample ids and the first column the gene ids   
 exprs_ids = read.table(file="expression_file_names.txt") 
 
@@ -11,7 +15,7 @@ agg.genes = unlist(read.table(file="gene_list.txt"))
 # Initialize aggregate 
 agg.r = diag(length(agg.genes)) 
 
-
+# Aggregate across 
 for (exprs_file in exprs_ids){
           exprs = read.table(file=exprs_file, header=T)
           # number of samples in experiment 
@@ -32,6 +36,11 @@ for (exprs_file in exprs_ids){
 	  sub = agg.r[f2,f2]
 	  sub = net + sub 
 	  agg.r[f2,f2] = sub 
+	  # Rerank agg.r 
+	  sub = matrix(rank(agg.r, na.last="keep",ties.method="average"), nrow=dim(agg.r)[1], ncol=dim(agg.r)[2])
+	 
+	  # Run GBA 
+	  roc = run_GBA()
 }
 
 
