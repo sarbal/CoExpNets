@@ -39,7 +39,7 @@ build_coexp_network <- function(data.all, genes.subset){
                 
                 network.temp[f.g,f.g] = network
                 network = network.temp
-                diag(network)  = 0
+                diag(network)  = 1
 
         }
 
@@ -52,16 +52,9 @@ build_coexp_network <- function(data.all, genes.subset){
         rownames(network.rank) = genes
         colnames(network.rank) = genes
 
-        network.rank[is.na(network.rank)] = 0
-        diag(network.rank) = 0
+        network.rank[is.na(network.rank)] = 1
+        diag(network.rank) = 1
 
-
-       # network.thresh = network.rank
-      #  network.thresh[network.thresh<0.995] = 0
-      #  diag(network.thresh) = 0
-       # save(network.thresh, file=fileout2)
-
-      #  save(network.rank, file=fileout)
         return(network.rank)
 }
 
