@@ -330,3 +330,27 @@ node_degree <- function(network){
 }
 
 
+threshold_network_top_genes <- function(network, p){
+	# threshold final network to top 0.1 genes
+	diag(network) <- 0
+	n = dim(network)[1]
+	x = n-1
+        top = ceiling(x*p)
+
+	ord = order(network, decreasing=T)
+	ord2 = apply(network, 2, order, decreasing=T)
+	ranks <-  apply( network, 2, rank,na.last="keep",ties.method="first")
+	x = which(ranks < (n-top))
+	network[x]=0
+
+	a = network != 0
+	b =  t(network) != 0
+	c = a+b
+	d = c==0
+	c[d] = 1
+
+	network = (network + t(network))/c
+	return(network)
+}
+
+
