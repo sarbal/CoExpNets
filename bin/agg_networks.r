@@ -12,8 +12,11 @@ exprs_ids = read.table(file="expression_file_names.txt")
 # Genes you want to aggregate over 
 agg.genes = unlist(read.table(file="gene_list.txt"))
 
-# Initialize aggregate 
-agg.r = diag(length(agg.genes)) 
+# Initialize aggregate and other variables  
+agg = diag(length(agg.genes)) 
+exprs_used = "" 
+roc = list() 
+i = 1 
 
 # Aggregate across 
 for (exprs_file in exprs_ids){
@@ -23,7 +26,7 @@ for (exprs_file in exprs_ids){
           
           # Only use experiments with more than MIN_SAMP
           if(n <= MIN_SAMP ) { next }
-          
+          exprs_used = append(exprs_file,exprs_used)  
           # Get names and labels from file 
           samples = colnames(exprs[,2:n])
           genes = exprs[,1]
@@ -33,14 +36,29 @@ for (exprs_file in exprs_ids){
           f2 = m[f1]
           	  
           net = build_coexp_network(data.matrix, genes[f1])
-	  sub = agg.r[f2,f2]
+	  sub = agg[f2,f2]
 	  sub = net + sub 
-	  agg.r[f2,f2] = sub 
-	  # Rerank agg.r 
-	  sub = matrix(rank(agg.r, na.last="keep",ties.method="average"), nrow=dim(agg.r)[1], ncol=dim(agg.r)[2])
-	 
+	  agg[f2,f2] = sub 
+	
+	  # Rerank agg 
+	  agg.r = matrix(rank(agg, na.last="keep",ties.method="average"), nrow=dim(agg)[1], ncol=dim(agg)[2])
+	  rownames(agg.r) =genes 
+	  colnames(agg.r) =genes 
+	
 	  # Run GBA 
-	  roc = run_GBA()
+	  roc[[i]] = run_GBA(sub, GO.labels)
+	  i = i + 1 
 }
+
+agg.r = matrix(rank(agg , na.last="keep",ties.method="average"), nrow=dim(agg)[1], ncol=dim(agg)[2])
+rownames(agg.r) =genes 
+colnames(agg.r) =genes 
+
+# Run GBA 
+roc_final = run_GBA(agg.r, GO.labels)
+
+# Save binaries 
+save(roc, roc_final, file="GBA.Rdata") 
+save(sub, agg, genes, exprs_used, file="aggregate.Rdata") 
 
 
