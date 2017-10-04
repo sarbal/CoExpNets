@@ -4,7 +4,8 @@ library(impute, quietly = TRUE)
 library(limma, quietly = TRUE)
 library(gplots)
 require(Biobase)
-
+library(parmigene)
+library(WGCNA)
 
 build_coexp_network <- function(data.all, genes.subset){
 
@@ -344,6 +345,68 @@ threshold_network_top_genes <- function(network, p){
 
 	network = (network + t(network))/c
 	return(network)
+}
+
+
+make_coexp_network_thresh <- function(indir, id, exprs, n, gene.ids, method,p){
+
+        network = cor( t(exprs), method=method)
+        diag(network) = 0
+
+        network[is.na(network)] = 0
+        network = abs(network)
+        temp = sort(network, method="q")
+        i = temp[length(temp)*p]
+        network[network < i] = 0
+        network[network>0] = 1
+
+        rownames(network) = gene.ids
+        colnames(network) = gene.ids
+
+        save(network,exprs, file=paste( indir,"/coexp/thresh/",id,".", method, ".Rdata",sep=""))
+}
+
+
+
+make_coexp_network_MI <- function(data.matrix,type,out){
+        # Run Mutual Information
+        print (system.time(mi <- knnmi.all(data.matrix)))
+
+	# Run ARACNE-a
+        print(system.time(grn.a.a <- aracne.a(mi, 0.05)))
+
+        # Run ARACNE-m
+        print(system.time(grn.a.m <- aracne.m(mi,tau=0.15)))
+
+        # Run CLR
+        print(system.time(grn.clr <- clr(mi)))
+
+        # Run MRNET
+        print(system.time(grn.mrnet <- mrnet(mi)))
+
+        save(mi, grn.a.m, grn.a.a, grn.clr, grn.mrnet, file=paste(out,type, "Rdata", sep="."))
+}
+
+make_coexp_network_WGCNA <- function(data.matrix,type,out){
+
+        names = rownames(data.matrix)
+        #
+        powers = c(c(1:10), seq(from = 12, to=20, by=2))
+        sft = pickSoftThreshold(t(data.matrix), powerVector = powers, verbose = 5)
+        softPower = sft$powerEstimate
+
+        if( is.na(softPower)){ softPower = 6 }
+        adjacency = adjacency( t(data.matrix), power=softPower)
+
+        test = is.na(adjacency)
+        adjacency[test] = 0
+
+        network <- TOMsimilarity(adjacency)
+        rownames(network) <- names
+        colnames(network) <- names
+        
+
+        save(network, file=paste(out,type,softPower, "Rdata", sep="."))
 }
 
 
