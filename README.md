@@ -1,6 +1,11 @@
 # CoExpNets
 How-to generate and analyze co-expression aggregate networks
 
+Guidance for RNA-seq co-expression network construction and analysis: safety in numbers 
+S. Ballouz  W. Verleyen  J. Gillis  Author Notes
+Bioinformatics, Volume 31, Issue 13, 1 July 2015, Pages 2123–2130,
+https://doi.org/10.1093/bioinformatics/btv118
+
 
 ## Basics 
 1. Get expression experiment 
