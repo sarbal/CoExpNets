@@ -5,6 +5,10 @@ How-to generate and analyze co-expression aggregate networks
 ## Basics 
 1. Get expression experiment 
 ``` 
+load("bin/run_GBA.Rdata")
+load("data/GO.human.Rdata")
+source("/bin/helper_functions.r")
+
 exprs_file = "GSE12946_expression_FPKM.parsed"
 exprs = read.table(file=exprs_file, header=T)
 ```
@@ -16,8 +20,6 @@ exprs  exprs/max(exprs, na.rm=T)
 
 3. Calculate network edges using spearman correlations 
 ``` 
-load("bin/run_GBA.Rdata")
-load("data/GO.human.Rdata")
 network = make_network(exprs) 
 ```
 
@@ -32,6 +34,7 @@ network = matrix(rank(network, na.last="keep",ties.method="average"), nrow=n, nc
     ```
     network = threshold_network_top_genes(network, 0.001)
     ```
+    
   b. Repeat on other networks and aggregate 
    see ```agg_network.r```
   
