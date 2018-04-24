@@ -3,7 +3,7 @@ source("helper_functions.r")
 load("run_GBA.Rdata")
 load("GO.human.Rdata")
 
-# Minimum number of smaples needed in expression experiment 
+# Minimum number of samples needed in expression experiment 
 MIN_SAMP = 10 
 
 # List of expression files. Each expression file should have the column names as the sample ids and the first column the gene ids   
