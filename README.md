@@ -56,4 +56,5 @@ Not ranking the matrix and then raising it to a power - also known as soft thres
 ``` 
 GBA = run_GBA(network, GO.labels)
 ``` 
+![perf1](imgs/assess.png "egad") ![perf2](imgs/coexpp.png "performance")
 
