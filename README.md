@@ -17,6 +17,7 @@ source("/bin/helper_functions.r")
 exprs_file = "GSE12946_expression_FPKM.parsed"
 exprs = read.table(file=exprs_file, header=T)
 ```
+
 ### 2. Rank standardize by sample 
 ``` 
 exprs = rank(exprs, na.last="keep")
@@ -27,6 +28,7 @@ exprs  exprs/max(exprs, na.rm=T)
 ``` 
 network = make_network(exprs) 
 ```
+![summary](imgs/schematic.png "schematic")
 
 ### 4. Rank standardize network
 ```
@@ -43,6 +45,8 @@ network = threshold_network_top_genes(network, 0.001)
 
 ####  b. Repeat on other networks and aggregate 
 see ```agg_network.r```
+
+![summary](imgs/netagg.png "aggre")
   
 #### c. Other
 Not ranking the matrix and then raising it to a power - also known as soft thresholding. See WGCNA: https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html
