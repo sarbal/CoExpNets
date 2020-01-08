@@ -13,6 +13,7 @@ https://doi.org/10.1093/bioinformatics/btv118
 load("bin/run_GBA.Rdata")
 load("data/GO.human.Rdata")
 source("/bin/helper_functions.r")
+library(EGAD)
 
 exprs_file = "GSE12946_expression_FPKM.parsed"
 exprs = read.table(file=exprs_file, header=T)
