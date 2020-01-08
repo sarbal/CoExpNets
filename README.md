@@ -17,6 +17,7 @@ source("/bin/helper_functions.r")
 exprs_file = "GSE12946_expression_FPKM.parsed"
 exprs = read.table(file=exprs_file, header=T)
 ```
+![summary](imgs/expression.png "exp")
 
 ### 2. Rank standardize by sample 
 ``` 
@@ -56,5 +57,8 @@ Not ranking the matrix and then raising it to a power - also known as soft thres
 ``` 
 GBA = run_GBA(network, GO.labels)
 ``` 
-![perf1](imgs/assess.png "egad") ![perf2](imgs/coexpp.png "performance")
+![perf1](imgs/assess.png "egad") 
+
+As increasing the number of samples increases performance, aggregation is recommended. 
+![perf2](imgs/coexpp.png "performance")
 
