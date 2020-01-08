@@ -21,12 +21,14 @@ exprs = read.table(file=exprs_file, header=T)
 ![summary](imgs/expression.png "exp")
 
 ### 2. Rank standardize by sample 
+Note, this step is not necessary if using spearman correlations in the next step. 
 ``` 
 exprs = rank(exprs, na.last="keep")
 exprs  exprs/max(exprs, na.rm=T)
 ```
 
-### 3. Calculate network edges using spearman correlations 
+### 3. Calculate network edges using correlations
+Note, spearman correlations are recommended. 
 ``` 
 network = make_network(exprs) 
 ```
