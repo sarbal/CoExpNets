@@ -35,15 +35,18 @@ network = matrix(rank(network, na.last="keep",ties.method="average"), nrow=n, nc
 ```
 ### 5. Options: 
 
-#### a. Take top 0.1% of connections 
-    ```
-    network = threshold_network_top_genes(network, 0.001)
-    ```
-    
+#### a. Hard threshold
+Take the top 0.1% of connections:  
+```
+network = threshold_network_top_genes(network, 0.001)
+```
+
 ####  b. Repeat on other networks and aggregate 
-   see ```agg_network.r```
+see ```agg_network.r```
   
-####  c. As is
+#### c. Other
+Not ranking the matrix and then raising it to a power - also known as soft thresholding. See WGCNA: https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html
+
 
 ### 6. Test for network functionality 
 ``` 
