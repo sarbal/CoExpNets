@@ -27,19 +27,14 @@ exprs = rank(exprs, na.last="keep")
 exprs  exprs/max(exprs, na.rm=T)
 ```
 
-### 3. Calculate network edges using correlations
+### 3. Calculate network edges using correlations and rank standardize
 Note, spearman correlations are recommended. 
 ``` 
 network = make_network(exprs) 
 ```
 ![summary](imgs/schematic.png "schematic")
 
-### 4. Rank standardize network
-```
-n = dim(network)[1]
-network = matrix(rank(network, na.last="keep",ties.method="average"), nrow=n, ncol=n)
-```
-### 5. Aggregation  
+### 4. Aggregation  
 #### a. Repeat on other expression experiments and aggregate 
 see ```agg_network.r```
 
@@ -53,7 +48,7 @@ network = threshold_network_top_genes(network, 0.001)
 Or not ranking the matrix and then raising it to a power - also known as soft thresholding. See WGCNA: https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html
 
 
-### 6. Test for network functionality 
+### 5. Test for network functionality 
 ``` 
 GBA = run_GBA(network, GO.labels)
 ``` 
