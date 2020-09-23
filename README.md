@@ -28,7 +28,7 @@ rownames(exprs) = geneids
 Note, this step is not necessary if using spearman correlations in the next step. 
 ``` 
 exprs = apply(exprs, 2, rank, na.last="keep")
-exprs  exprs/max(exprs, na.rm=T)
+exprs = exprs/max(exprs, na.rm=T)
 ```
 
 ### 3. Calculate network edges using correlations and rank standardize
