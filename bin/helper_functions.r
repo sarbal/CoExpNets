@@ -312,7 +312,7 @@ make_network <- function(exprs){
         rownames(network.rank) = genes
         colnames(network.rank) = genes
 
-        network.rank[is.na(network.rank)] = 0
+        network.rank[is.na(network.rank)] = 0.5
         network = network.rank 
         rm(network.rank)
         return(network)
