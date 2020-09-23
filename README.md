@@ -15,8 +15,11 @@ load("data/GO.human.Rdata")
 source("/bin/helper_functions.r")
 library(EGAD)
 
-exprs_file = "GSE12946_expression_FPKM.parsed"
-exprs = read.table(file=exprs_file, header=T)
+exprs_file = "GSE12946_expression_FPKM.parsed.txt"
+exprs = read.table(file=exprs_file, header=F)
+geneids = exprs[,1]
+exprs = exprs[,-1]
+exprs = as.matrix(exprs) 
 ```
 ![summary](imgs/expression.png "exp")
 
