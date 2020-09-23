@@ -27,7 +27,7 @@ rownames(exprs) = geneids
 ### 2. Rank standardize by sample 
 Note, this step is not necessary if using spearman correlations in the next step. 
 ``` 
-exprs = rank(exprs, na.last="keep")
+exprs = apply(exprs, 2, rank, na.last="keep")
 exprs  exprs/max(exprs, na.rm=T)
 ```
 
