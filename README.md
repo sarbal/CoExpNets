@@ -20,6 +20,7 @@ exprs = read.table(file=exprs_file, header=F)
 geneids = exprs[,1]
 exprs = exprs[,-1]
 exprs = as.matrix(exprs) 
+rownames(exprs) = geneids
 ```
 ![summary](imgs/expression.png "exp")
 
