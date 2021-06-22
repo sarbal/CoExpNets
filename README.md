@@ -27,7 +27,7 @@ rownames(exprs) = geneids
 ### 2. Calculate network edges using correlations and rank standardize
 Note, spearman correlations are recommended. 
 ``` 
-network = build_coexp_network(exprs) 
+network = EGAD::build_coexp_network(exprs) 
 ```
 ![summary](imgs/schematic.png "schematic")
 
