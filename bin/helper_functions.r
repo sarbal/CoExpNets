@@ -1,11 +1,20 @@
-library(GEOquery, quietly = TRUE)
-library(arrayQualityMetrics, quietly = TRUE)
-library(impute, quietly = TRUE)
-library(limma, quietly = TRUE)
-library(gplots)
-require(Biobase)
-library(parmigene)
-library(WGCNA)
+if( !require("limma"))
+    BiocManager::install("limma")
+
+if( !require("gplots"))
+  install.packages("gplots")
+
+if( !require("Biobase"))
+  install.packages("Biobase")
+
+if( !require("parmigene"))
+  install.packages("parmigene")
+
+if( !require("WGCNA"))
+    BiocManager::install("WGCNA")
+
+if( !require("EGAD"))
+    BiocManager::install("EGAD")
 
 calc_cpm <-function(X){
   K  = colSums(X)
