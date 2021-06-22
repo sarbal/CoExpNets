@@ -430,3 +430,175 @@ make_coexp_network_WGCNA <- function(data.matrix,type,out){
 }
 
 
+
+plot_network_graph <- function(sub_net, clust_net, threshold = 0.5, filt_min = 6) {
+
+  diag(sub_net) <-  0
+  upper <- row(sub_net) < col(sub_net)
+  pairs <- which(upper, arr.ind = T )
+  gene_names <- rownames(sub_net)
+  weights <- sub_net[upper]
+  pairs <- data.frame( p1 = gene_names[pairs[,1]], p2 = gene_names[pairs[,2]] , weights = weights )
+
+
+  # inet <- igraph::graph_from_adjacency_matrix(sub_net, weighted = T, mode = "undirected")
+  inet <- igraph::graph_from_data_frame(pairs, directed=F)
+  igraph::E(inet)$weight <- 1 - weights
+  igraph::E(inet)$width <- (weights^2 * 10)
+  igraph::E(inet)$edge.color <- "gray80"
+  igraph::E(inet)$color <- viridis(101)[ round(weights * 100) + 1  ]
+
+    o <- match(igraph::V(inet)$name, clust_net$clusters$genes)
+
+  igraph::V(inet)$color <- as.character(clust_net$clusters$colors)[o]
+
+  igraph::V(inet)$label <- ""
+  igraph::V(inet)$size <- 4
+
+  clust_size <- plyr::count(clust_net$clusters$labels )
+  clust_keep <-  clust_size[clust_size[,2] < filt_min ,1]
+  genes_keep <- !is.na(match( clust_net$clusters$labels, clust_keep))
+
+  o <- match( igraph::V(inet)$name, clust_net$clusters$genes[genes_keep])
+  f_n <- !is.na(o)
+  igraph::V(inet)$size[f_n] <- 10
+
+
+  inet_sub <-  igraph::delete_edges(inet, igraph::E(inet)[weights < threshold])
+
+  plot(inet_sub )
+  #, layout = layout_with_fr )
+  return(inet_sub)
+}
+
+
+
+plot_coexpression_heatmap <- function(coexp, cluster_output,
+                                      col_map = viridis(100),
+                                      filt = FALSE, filt_min = 6) {
+
+
+    m <- match( rownames(coexp), cluster_output$clusters[,1] )
+    temp_col <- as.character(cluster_output$clusters[m,4])
+
+    clust_size <- plyr::count( cluster_output$clusters$labels )
+    clust_keep <-  clust_size[clust_size[,2] < filt_min ,1]
+    genes_keep <- !is.na(match( cluster_output$clusters$labels[m], clust_keep))
+
+    temp_filt_col <- temp_col
+    if(filt==TRUE){ temp_filt_col[!genes_keep] <- "white" }
+
+    heatmap.2(coexp, density.info = "none", trace = "none",
+              col = col_map,
+              margins=c(10,10),
+              keysize=1,
+              key.xlab="Ranked co-expression",
+              key.title="NULL",
+              Rowv = cluster_output$dendrogram,
+              Colv = cluster_output$dendrogram,
+              RowSideColors =  temp_col,
+              ColSideColors = temp_filt_col,
+              cexRow = 2, cexCol = 2, main="" )
+
+}
+
+
+cluster_coexp <- function(coexp, runid = "", filt_min = 6, medK = 0.5,
+                                 col_map = viridis(100), method = "average",
+                                 flag_plot = FALSE, flag_med = TRUE, flag_dist = FALSE,
+                                 frac = 0.995, deep_split = 2, min_cs = 2 ) {
+
+    # Get distance matrix from co-expression
+    temp <- coexp
+
+    # Make as a binary network based on median
+    if( flag_med == TRUE) {
+        temp[temp > medK] <- 1
+        temp[temp <= medK] <- 0
+        diag(temp) <- 0
+    }
+
+    gene_names <- rownames(temp)
+
+    # Re-calculate distances between genes for distance matrix
+    if( flag_dist == TRUE) {
+        dist_temp <- dist(temp)
+    } else {
+        dist_temp <- as.dist(temp)
+    }
+
+    # Cluster genes using distance matrix
+    clust_tree <- hclust(dist_temp, method = method)
+    clust_dend <- as.dendrogram(clust_tree)
+
+    if( flag_dist == TRUE ){
+        max_h = max(clust_tree$height)
+    } else {
+        max_h = 1
+    }
+
+    # Extract clusters/modules
+    unmerged_modules <- dynamicTreeCut::cutreeDynamic(dendro = clust_tree,
+                                                      distM = as.matrix(dist_temp),
+                                                      deepSplit = deep_split,
+                                                      cutHeight = frac * max_h,
+                                                      minClusterSize = min_cs,
+                                                      pamRespectsDendro = FALSE)
+
+    n_max <- max(unmerged_modules)
+    n_l <- sum(unmerged_modules==0)
+    merged_modules <- unmerged_modules
+    if( n_l > 0) { merged_modules[unmerged_modules==0] <- (1:n_l ) + n_max }
+    merged_modules <- merged_modules[clust_tree$order]
+
+    # Re-label clusters ids
+    i.prev <- ""
+    ki <- 1
+    ji <- 0
+    remerged_modules <- as.numeric(merged_modules) * 0
+    for (ii in as.numeric(merged_modules) ) {
+        if (ii == i.prev) {
+            remerged_modules[ki] <- ji
+        } else {
+            i.prev <- ii
+            ji <- ji + 1
+            remerged_modules[ki] <- ji
+
+        }
+        ki <- ki + 1
+    }
+
+    # Total number of clusters
+    nsclust <- as.numeric(remerged_modules) + 1
+
+
+    # Generate colors for modules
+    merged_colors <- viridis::magma(max(nsclust))[nsclust]
+    m <- match( gene_names, gene_names[clust_tree$order] )
+
+    # Plot
+    if (flag_plot == TRUE) {
+
+        heatmap.2( coexp, density.info = "none", trace = "none",
+                  col = col_map,
+                  Rowv = clust_dend, Colv = clust_dend,
+                  RowSideColors = merged_colors[m],
+                  ColSideColors = merged_colors[m],
+                  cexRow = 0.5, cexCol = 0.5, main = runid)
+
+    }
+
+    # Tidy up output
+    clusterids <- data.frame( genes = gene_names[clust_tree$order], labels = remerged_modules,
+                             labels_unmerged = unmerged_modules[clust_tree$order],
+                             colors = merged_colors)
+
+    combined_output <- list(as.matrix(dist_temp), clust_tree, clust_dend, m, clusterids)
+    names(combined_output) <- c( "distance_matrix", "tree", "dendrogram", "order", "clusters")
+    return(combined_output)
+}
+
+
+		      
+		      
+		      
