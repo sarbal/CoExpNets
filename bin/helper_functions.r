@@ -7,6 +7,17 @@ require(Biobase)
 library(parmigene)
 library(WGCNA)
 
+calc_cpm <-function(X){
+  K  = colSums(X)
+  X.cpm = sapply(1:length(K), function(k) 10^6*X[,k]/K[k] )
+  return(X.cpm)
+}
+
+
+heatmap.3 <- function(mat, ...){
+  heatmap.2( mat, ..., density="none", trace="none")
+}
+
 build_coexp_network <- function(data.all, genes.subset){
 
         ### data.all should contain: info (sample information), genes (entrez gene IDs), data.matrix ( gene expressions )
